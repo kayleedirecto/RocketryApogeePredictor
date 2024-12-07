@@ -51,7 +51,19 @@ def getDrag() -> float:
 def getPressure() -> float:
     return
 
-def getTemp()
+# Function to get temperature at current height., using ISA 
+def getTemp(displacement : float) -> float: 
+    # displacement : Current displacement of the rocket 
+    baseTemp = 15.0 # Base temperature of troposphere [°C]
+    lapseRate = 0.0065 # Lapse rate [°C/m]
+    z = Parameters.launchAltitude + displacement # Current rocket height above sea level 
+
+    tempC = baseTemp - lapseRate * z # Temperature in [°C]
+    tempK = tempC + 273.15 # Temperature in K 
+
+    # test 
+
+    return tempK 
 
 def getAcceleration() -> float:
     return
