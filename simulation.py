@@ -39,10 +39,19 @@ def updateMass () -> float:
     # else calculate mass
     return
 
-def getGravity() -> float: 
-    # mass 
-    # grav constant 
-    # launch angle
+def getGravity(m_rocket, altitude, launchAngle) -> float: 
+    #m_rocket (kg): current mass of the rocket
+    #altitude (km): current height of the rocket above sea level
+    #launchAngle (radians): launch angle of the rocket
+
+    # CONSTANTS 
+    g_universal = 6.67e-11 #Nm^2/kg^2 (universal gravitational constant)
+    m_earth = 5.972e24 #kg (mass of the earsth)
+    r_earth = 6.378e6 #m (radius of the earth)
+
+
+
+
     return 
 
 def getDrag() -> float: 
@@ -51,7 +60,8 @@ def getDrag() -> float:
 def getPressure() -> float:
     return
 
-def getTemp()
+def getTemp() -> float:
+    return
 
 def getAcceleration() -> float:
     return
