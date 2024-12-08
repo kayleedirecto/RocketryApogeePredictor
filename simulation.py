@@ -91,24 +91,24 @@ def getDensity(altitude : float) -> float:
     density = baseDens * ((baseTemp - lapseRate * altitude) / baseTemp) ** (const - 1) # Air density at the current height above sea level [kg m^-3]
     return density 
 
-def getTemp(altitude : float) -> float: 
-    """
-    Function to get temperature at current height above sea level, using ISA 
+# def getTemp(altitude : float) -> float: 
+#     """
+#     Function to get temperature at current height above sea level, using ISA 
 
-    Args:
-        altitude (float): Current altitude (height above sea level) of the rocket [m]
+#     Args:
+#         altitude (float): Current altitude (height above sea level) of the rocket [m]
 
-    Returns:
-        temp (float): Temperature at the current height above sea level [K]
-    """
+#     Returns:
+#         temp (float): Temperature at the current height above sea level [K]
+#     """
 
-    baseTemp = 288.15 # Base temperature of troposphere [K]
-    lapseRate = 0.0065 # Lapse rate [K m^-1]
-    altitude = launchAltitude + displacement # Current rocket height above sea level 
+#     baseTemp = 288.15 # Base temperature of troposphere [K]
+#     lapseRate = 0.0065 # Lapse rate [K m^-1]
+#     altitude = launchAltitude + displacement # Current rocket height above sea level 
 
-    temp = baseTemp - lapseRate * altitude # Temperature in [K]
+#     temp = baseTemp - lapseRate * altitude # Temperature in [K]
 
-    return temp
+#     return temp
 
 def getAcceleration(drag : float, gravity : float, thrust : float,  mass : float) -> float:
     """
@@ -129,7 +129,7 @@ def getAcceleration(drag : float, gravity : float, thrust : float,  mass : float
 
     return acceleration 
 
-def getVelocity(velPrevious : float, acceleration : float) -> float: 
+def getVelocity(velPrevious : float, acceleration : float, dt : float) -> float: 
 # # # # # # # # # # # # # 
     """
     Function to update velocity at given time step [m s^-1]
@@ -172,26 +172,32 @@ def main() -> None:
         
         # Calculating everything at current timestep, i         
 
-        altitude = displacement[i] + Parameters.launchAltitude 
+        altitude = displacement[i] + launchParameters.launchAltitude 
 
-        velocityHalfTimeStep = getVelocity(velocity[i], acceleration[i], (dt/2.0))
-        displacementFullTimeStep = getDisplacement(displacement[i], velocityHalfTimeStep, dt)
+        velocityHalfTimeStep = getVelocity(velocity[i], acceleration[i], (dt/2.0)) # Velocity at timestep i + 1/2 
+        displacementFullTimeStep = getDisplacement(displacement[i], velocityHalfTimeStep, dt) # Displacement at timestep i + 1
         
-        ourRocket.updateMass(massFlowRate[i + 2], dt)
+        ourRocket.updateMass(massFlowRate[i + 2], dt) # Updating mass at timestep i + 1 
+        altitudeFullTimeStep = displacementFullTimeStep + launchParameters.launchAltitude # Altitude at timestep i + 1
 
         # Now calculating acceleration 
 
-        #getThrust
-        #getGravity
-        #getDrag
-
-        #get acceleration 
-
-        #get velcotyi 
-        #store everythign (velocity + postion + acc ) 
+        density = getDensity()
 
 
-        #if statemenet for breaking conditions 
+        # TODO: Finish
+        thrust = getThrust() 
+        gravity = getGravity(ourRocket.currentMass, altitudeFullTimeStep, launchParameters.launchAngle)  # Gravity at timestep i + 1
+        drag = getDrag(velocityHalfTimeStep,  )# Drag at timestep i + 1
+
+        accelerationFullTimeStep = getAcceleration(drag, gravity, thrust, ourRocket.currentMass) 
+        velocityFullTimeStep = getVelocity(velocityHalfTimeStep, accelerationFullTimeStep, (dt/2.0) )
+
+        # Storing all variables at full time step 
+        ve
+
+
+        # if statemenet for breaking conditions 
 
 
         fullTimeStep += 2
