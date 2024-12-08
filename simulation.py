@@ -1,5 +1,6 @@
 # This is the main program file
 import pandas as pd
+import math 
 
 class Rocket():
     def __init__(self) -> None:
@@ -49,10 +50,9 @@ def getGravity(m_rocket, altitude, launchAngle) -> float:
     m_earth = 5.972e24 #kg (mass of the earsth)
     r_earth = 6.378e6 #m (radius of the earth)
 
-
-
-
-    return 
+    #force of gravity (in newtons)
+    fg = (g_universal * m_rocket * m_earth * math.cos(launchAngle))/(r_earth + altitude)
+    return fg
 
 def getDrag() -> float: 
     return
