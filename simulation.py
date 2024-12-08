@@ -2,16 +2,25 @@
 import pandas as pd
 import math 
 
+
 class Rocket():
     def __init__(self) -> None:
         # TEMP VALUES MUST BE CHANGED FOR REAL ONES
-        self.wetMass = 10       # Mass with Fuel
         self.fuelMass = 2       # Mass of fuel  
-        self.dryMass = self.wetMass - self.fuelMass
+        self.dryMass = 8        # mass of the rocket without fuel
+        self.currentMass = self.fuelMass + self.dryMass       # mass that will be updated as fuel is burnt
         
         self.topCrossSectionalArea = 0.0135
         
         self.CD = 0.6
+        
+    def updateMass(self, massFlowRate : float, dt) -> float:
+        # dt is the timestep from the parameter's class
+        # massFlowRate is the current mass flow rate of this timestep
+        if massFlowRate < 1e-4:
+            self.currentMass = self.dryMass
+        else:
+            self.currentMass = self.currentMass - massFlowRate * dt
         
 class Parameters():
     def __init__(self, filePath : str, launchAltitude : int = 0, launchAngle : int = 0) -> None:
@@ -28,17 +37,12 @@ class Parameters():
         # Integration Initial Conditions
         self.initialVelocity = 10e-6
         self.initialDisplacement = 10e-6
+        self.initialAcceleration = 0
+        
 
-def getThrust(timeStep : int, data : pd.DataFrame = Parameters.data) -> float:
+def getThrust(timeStep : int, data : pd.DataFrame) -> float:
     
     return 
-
-def updateMass () -> float:
-    # if MFR = 0
-    # return drymass
-    
-    # else calculate mass
-    return
 
 def getGravity(m_rocket, altitude, launchAngle) -> float: 
     #m_rocket (kg): current mass of the rocket
@@ -46,12 +50,11 @@ def getGravity(m_rocket, altitude, launchAngle) -> float:
     #launchAngle (radians): launch angle of the rocket
 
     # CONSTANTS 
-    g_universal = 6.67e-11 #Nm^2/kg^2 (universal gravitational constant)
-    m_earth = 5.972e24 #kg (mass of the earsth)
-    r_earth = 6.378e6 #m (radius of the earth)
+    g_universal = 9.8 #gravitational constant
 
     #force of gravity (in newtons)
-    fg = (g_universal * m_rocket * m_earth * math.cos(launchAngle))/(r_earth + altitude)
+    fg = m_rocket * g * math.cos(launchAngle)
+    
     return fg
 
 def getDrag(velocity : float, density : float, data : pd.DataFrame = Parameters.data, crossArea : float = Rocket.topCrossSectionalArea) -> float: 
@@ -70,14 +73,12 @@ def getDrag(velocity : float, density : float, data : pd.DataFrame = Parameters.
     
     return drag 
 
-def getDensity(displacement : float, temp : float, launchAltitude : float = Parameters.launchAltitude) -> float:
+def getDensity(altitude : float) -> float:
     """
     Function to get air density at current height, using barometric formula [kg m^-3]
 
     Args:
-        displacement (float): Current displacement of the rocket [m]
-        temp (float): Current temperature at height above sea level [K]
-        launchAltitude (float): Height of launch altitude above sea level [m]
+        altitude (float): Current altitude (height above sea level) of the rocket [m]
 
     Returns:
         density (float): Air density at the current height above sea level [kg m^-3]
@@ -86,18 +87,16 @@ def getDensity(displacement : float, temp : float, launchAltitude : float = Para
     baseTemp = 288.15 # [K] Base temperature of troposphere
     lapseRate = 0.0065 # [K m^-1] Lapse rate
     const =  5.25588 # (gravity * molar mass of air) / (ideal gas constant * lapse rate)
-    z = launchAltitude + displacement # Current rocket height above sea level 
 
-    density = baseDens * ((baseTemp - lapseRate * z) / baseTemp) ** (const - 1) # Air density at the current height above sea level [kg m^-3]
+    density = baseDens * ((baseTemp - lapseRate * altitude) / baseTemp) ** (const - 1) # Air density at the current height above sea level [kg m^-3]
     return density 
 
-def getTemp(displacement : float, launchAltitude : float = Parameters.launchAltitude) -> float: 
+def getTemp(altitude : float) -> float: 
     """
     Function to get temperature at current height above sea level, using ISA 
 
     Args:
-        displacement (float): Current displacement of the rocket [m]
-        launchAltitude (float): Height of launch altitude above sea level [m]
+        altitude (float): Current altitude (height above sea level) of the rocket [m]
 
     Returns:
         temp (float): Temperature at the current height above sea level [K]
@@ -105,9 +104,9 @@ def getTemp(displacement : float, launchAltitude : float = Parameters.launchAlti
 
     baseTemp = 288.15 # Base temperature of troposphere [K]
     lapseRate = 0.0065 # Lapse rate [K m^-1]
-    z = launchAltitude + displacement # Current rocket height above sea level 
+    altitude = launchAltitude + displacement # Current rocket height above sea level 
 
-    temp = baseTemp - lapseRate * z # Temperature in [K]
+    temp = baseTemp - lapseRate * altitude # Temperature in [K]
 
     return temp
 
@@ -130,38 +129,57 @@ def getAcceleration(drag : float, gravity : float, thrust : float,  mass : float
 
     return acceleration 
 
-def getVelocity() -> float: 
-    return 
+def getVelocity(velPrevious : float, acceleration : float) -> float: 
+# # # # # # # # # # # # # 
+    """
+    Function to update velocity at given time step [m s^-1]
 
-def getDisplacement() -> float: 
-    return 
+    Args:
+        velPrevious (float): Previous velocity [m s^-1]
+        acceleration (float): Acceleration [m s^-2]
+        dt (float): Time step [s]
+
+    Returns:
+        (float): Velocity at next time step [m s^-1]
+    """
+    return velPrevious + acceleration * dt
+
+def getDisplacement(dispPrevious : float, velocity : float, dt : float) -> float: 
+    """
+    Function to update displacement at given time step [m]
+
+    Args:
+        dispPrevious (float): Previous displacement [m]
+        velocity (float): Velocity [m s^-1]
+        dt (float): Time step [s]
+
+    Returns:
+        (float): Displacement at next time step [m]
+    """
+    return dispPrevious + velocity * dt
 
 def main() -> None:
-    velocity = [1e-6]
-    displacement = []
-    acceleration = []
-    i = 0
+    ourRocket = Rocket()
+    launchParameters = Parameters('', 100, 2)
+    
+    velocity = [launchParameters.initialVelocity]
+    displacement = [launchParameters.initialDisplacement]
+    acceleration = [launchParameters.initialAcceleration]
+    dt = launchParameters.timestep
+    massFlowRate = [] #needs to be changed when the massFlowRate is a list. This should be the first index of the mfr list
+    i = 0 #Full timestep count. goes up by 2 every time because our thrustCurve goes up by half timesteps
     while True:
-        altitude = displacement[i] + Parameters.launchAltitude
         
-        #update mass 
+        # Calculating everything at current timestep, i         
 
-        #getThrust
-        #getGravity
-        #getDrag
+        altitude = displacement[i] + Parameters.launchAltitude 
 
-        #getacceleration
+        velocityHalfTimeStep = getVelocity(velocity[i], acceleration[i], (dt/2.0))
+        displacementFullTimeStep = getDisplacement(displacement[i], velocityHalfTimeStep, dt)
+        
+        ourRocket.updateMass(massFlowRate[i + 2], dt)
 
-        #getvelocity 
-        #get position 
-
-        # NOTE : Do we want to gte velocity and displacement in a function or just like this in the loop? 
-        vx[oplanet] = vx[oplanet]+ax*(dt/2);
-        vy[oplanet] = vy[oplanet]+ay*(dt/2);
-        x[oplanet] = x[oplanet]+vx[oplanet]*dt;
-        y[oplanet] = y[oplanet]+vy[oplanet]*dt;
-
-        #update mass 
+        # Now calculating acceleration 
 
         #getThrust
         #getGravity
@@ -176,7 +194,7 @@ def main() -> None:
         #if statemenet for breaking conditions 
 
 
-        i+=1
+        fullTimeStep += 2
 
 
         
