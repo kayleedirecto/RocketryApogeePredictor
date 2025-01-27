@@ -135,12 +135,12 @@ def getVelocity(velPrevious : float, acceleration : float, dt : float) -> float:
     Function to update velocity at given time step [m s^-1]
 
     Args:
-        velPrevious (float): Previous velocity [m s^-1]
-        acceleration (float): Acceleration [m s^-2]
+        velPrevious (float): Previous velocity [m s^-1] at timestep 
+        acceleration (float): Acceleration [m s^-2] 
         dt (float): Time step [s]
 
     Returns:
-        (float): Velocity at next time step [m s^-1]
+        (float): Velocity [m s^-1] at next time step
     """
     return velPrevious + acceleration * dt
 
@@ -159,53 +159,112 @@ def getDisplacement(dispPrevious : float, velocity : float, dt : float) -> float
     return dispPrevious + velocity * dt
 
 def main() -> None:
+
+    # Initializing rocket and launch parameters 
+
     ourRocket = Rocket()
     launchParameters = Parameters('', 100, 2)
     
     velocity = [launchParameters.initialVelocity]
     displacement = [launchParameters.initialDisplacement]
     acceleration = [launchParameters.initialAcceleration]
+    time = [1e-6]
+    thrust = [0]
+    gravity = [0] 
+    drag = [0]
+    density = [0]
     dt = launchParameters.timestep
-    massFlowRate = [] #needs to be changed when the massFlowRate is a list. This should be the first index of the mfr list
+    # massFlowRate = [] #needs to be changed when the massFlowRate is a list. This should be the first index of the mfr list
+    
     i = 0 #Full timestep count. goes up by 2 every time because our thrustCurve goes up by half timesteps
     while True:
-        
-        # Calculating everything at current timestep, i         
-
         altitude = displacement[i] + launchParameters.launchAltitude 
 
+
+        # Updating velocity and displacement 
+        
         velocityHalfTimeStep = getVelocity(velocity[i], acceleration[i], (dt/2.0)) # Velocity at timestep i + 1/2 
         displacementFullTimeStep = getDisplacement(displacement[i], velocityHalfTimeStep, dt) # Displacement at timestep i + 1
         
-        ourRocket.updateMass(massFlowRate[i + 2], dt) # Updating mass at timestep i + 1 
+        # Now calculating acceleration for timestep i + 1
+       
+        densityFullTimeStep = getDensity(altitudeFullTimeStep) # Density at timestep i + 1
+        ourRocket.updateMass(massFlowRate[i + 1], dt) # Updating mass at timestep i + 1. # TODO: Finish mass flow rate indexing 
         altitudeFullTimeStep = displacementFullTimeStep + launchParameters.launchAltitude # Altitude at timestep i + 1
+        # Calculating all forces at timestep i + 1
+        thrustFullTimeStep = getThrust() # TODO: FINISH! 
+        gravityFullTimeStep = getGravity(ourRocket.currentMass, altitudeFullTimeStep, launchParameters.launchAngle)  # Gravity at timestep i + 1, using altitude and mass at timestep i + 1
+        dragFullTimeStep = getDrag(velocityHalfTimeStep, densityFullTimeStep, data[], ourRocket.topCrossSectionalArea) # TODO: COMPLETE DATA FOR DRAG COEFFICIENT Drag at timestep i + 1
+        accelerationFullTimeStep = getAcceleration(dragFullTimeStep, gravityFullTimeStep, thrustFullTimeStep, ourRocket.currentMass) 
+       
+        # Now catching up velocity to full timstep 
 
-        # Now calculating acceleration 
-
-        density = getDensity()
-
-
-        # TODO: Finish
-        thrust = getThrust() 
-        gravity = getGravity(ourRocket.currentMass, altitudeFullTimeStep, launchParameters.launchAngle)  # Gravity at timestep i + 1
-        drag = getDrag(velocityHalfTimeStep,  )# Drag at timestep i + 1
-
-        accelerationFullTimeStep = getAcceleration(drag, gravity, thrust, ourRocket.currentMass) 
-        velocityFullTimeStep = getVelocity(velocityHalfTimeStep, accelerationFullTimeStep, (dt/2.0) )
+        velocityFullTimeStep = getVelocity(velocityHalfTimeStep, accelerationFullTimeStep, (dt/2.0))
+        
+        # if statement for breaking conditions 
+        
+        if (displacementFullTimeStep < 0) or (time[i] > 2000):  # When rocket starts to move downwards OR time is too long 
+            break 
 
         # Storing all variables at full time step 
-        ve
-
-
-        # if statemenet for breaking conditions 
-
-
-        fullTimeStep += 2
-
-
         
-        pass
-    
+        velocity.append(velocityFullTimeStep) 
+        acceleration.append(accelerationFullTimeStep)
+        displacement.append(displacementFullTimeStep)
+        time.append(time[i] + dt) 
+        thrust.append(thrustFullTimeStep) 
+        gravity.append(gravityFullTimeStep)
+        drag.append(dragFullTimeStep) 
+        density.append(densityFullTimeStep) 
+
+        i += 1 
+
+    print("Apogee: " + str(max(displacement)))
+
+    # Now plotting graphs 
+
+    # 1) Acceleration, velocity, displacement 
+    plt.figure(1)
+
+    plt.subplot(1, 3, 1)
+    plt.plot(time, displacement, label = 'Displacement')
+    plt.title('Displacement')
+
+    plt.subplot(1, 3, 2)
+    plt.plot(time, velocity, label = 'Velocity')
+    plt.title('Velocity')
+
+    plt.subplot(1, 3, 3)
+    plt.plot(time, acceleration, label = 'Acceleration')
+    plt.title('Acceleration')
+
+    # 2) Forces 
+
+    plt.figure(2)
+
+    plt.subplot(1, 3, 1)
+    plt.plot(time, thrust, label = 'Thrust')
+    plt.title('Thrust')
+
+    plt.subplot(1, 3, 2)
+    plt.plot(time, drag, label = 'Drag')
+    plt.title('Drag')
+
+    plt.subplot(1, 3, 3)
+    plt.plot(time, gravity, label = 'Gravity')
+    plt.title('Gravity')
+
+    # 3) Density 
+
+    plt.figure(3) 
+    plt.plot(time, density, label = 'Density')
+    plt.title('Density')
+
+
+
+
+
+
     
 
     
