@@ -22,7 +22,7 @@ def interpolateCurve(df : pd.DataFrame) -> pd.DataFrame:
     
     interp_func = interp1d(df['Time (s)'], df['Thrust (N)'], kind='linear', fill_value='extrapolate')
     
-    newTime = np.arange(timeVals.min(), timeVals.max(), 0.001)
+    newTime = np.arange(timeVals.min(), timeVals.max(), 0.0001)
     newThrust = interp_func(newTime)
 
     # Create the new DataFrame
@@ -55,7 +55,7 @@ def interpolateCurve_Pandas(df : pd.DataFrame) -> pd.DataFrame:
 def main() -> None:
     motorFile = "Cesaroni_10367N1800-P.csv"
     df = extractThrustcurve(motorFile)
-    updateCSV(df, "Test.csv")
+    # updateCSV(df, "Test.csv")
 
     interpolatedDataFrame = interpolateCurve(df)
     updateCSV(interpolatedDataFrame, "LC_Curve.csv")
