@@ -34,30 +34,40 @@ def updateCSV(df : pd.DataFrame, filename : str = 'ThrustCurve.csv') -> None:
     df.to_csv(filename, index=False)
     return
 
-def interpolateCurve_Pandas(df : pd.DataFrame) -> pd.DataFrame:
+# def interpolateCurve_Pandas(df : pd.DataFrame) -> pd.DataFrame:
     
-    # Ensure the time column is a datetime or numeric type
-    df['Time (s)'] = pd.to_datetime(df['Time (s)'])
+#     # Ensure the time column is a datetime or numeric type
+#     df['Time (s)'] = pd.to_datetime(df['Time (s)'])
 
-    # Set the time column as the index
-    df.set_index('Time (s)', inplace=True)
+#     # Set the time column as the index
+#     df.set_index('Time (s)', inplace=True)
 
-    # Resample to 1ms intervals
-    df_resampled = df.resample('1ms').mean()
+#     # Resample to 1ms intervals
+#     df_resampled = df.resample('1ms').mean()
 
-    # Interpolate missing values linearly
-    df_interpolated = df_resampled.interpolate(method='linear')
+#     # Interpolate missing values linearly
+#     df_interpolated = df_resampled.interpolate(method='linear')
 
-    return df_interpolated
+#     return df_interpolated
 
 # extractThrustcurve("Cesaroni_10367N1800-P.csv")
 
+def calculateMassFlowRate(df : pd.DataFrame, Isp : float) -> pd.DataFrame: 
+    g0 = 9.80665 # Standard gravity [m/s]
+    df['Mass Flow Rate (kg/s)'] = df['Thrust (N)'] / (Isp * g0)
+    return df
+    
 def main() -> None:
-    motorFile = "Cesaroni_10367N1800-P.csv"
+    Isp = 185 # [s], Specific impulse for Cesaroni
+    motorFile = "RecoverySim24-25/Cesaroni_10367N1800-P.csv"
     df = extractThrustcurve(motorFile)
     # updateCSV(df, "Test.csv")
 
-    interpolatedDataFrame = interpolateCurve(df)
-    updateCSV(interpolatedDataFrame, "LC_Curve.csv")
+    interpolatedDataFrame = interpolateCurve(df) 
+    interpolatedDataFrame = calculateMassFlowRate(interpolatedDataFrame, Isp) # Calculating mass flow rate
+
+    print(interpolatedDataFrame.head())  # Debugging step
+
+    updateCSV(interpolatedDataFrame, "RecoverySim24-25/Thrust_MFR.csv")
     
 main()

@@ -2,7 +2,6 @@
 import pandas as pd
 import math 
 
-
 class Rocket():
     def __init__(self) -> None:
         # TEMP VALUES MUST BE CHANGED FOR REAL ONES
@@ -14,11 +13,19 @@ class Rocket():
         
         self.CD = 0.6
         
-    def updateMass(self, massFlowRate : float, dt) -> float:
-        # dt is the timestep from the parameter's class
-        # massFlowRate is the current mass flow rate of this timestep
+    def updateMass(self, data : pd.DataFrame, dt : float, timeIndex : int) -> float:
+        """
+        Function to update mass of the rocket [kg]
+
+        Args:
+            data (pd.DataFrame): Dataframe with MFR + thrust force info
+            dt (float) : Time step 
+            timeIndex (int): Index of time you want to retrieve mass flow rate
+        """
+        massFlowRate = data['Mass Flow Rate (kg/s)'].loc[data.index[timeIndex]]   
+
         if massFlowRate < 1e-4:
-            self.currentMass = self.dryMass
+            self.currentMass = self.dryMass # NOTE: might not need this 
         else:
             self.currentMass = self.currentMass - massFlowRate * dt
         
@@ -39,10 +46,19 @@ class Parameters():
         self.initialDisplacement = 10e-6
         self.initialAcceleration = 0
         
+def getThrust(timeIndex : int, data : pd.DataFrame) -> float:
+    """
+    Function to get thrust force [m s^-2] 
 
-def getThrust(timeStep : int, data : pd.DataFrame) -> float:
-    
-    return 
+    Args:
+        timeIndex (int): Index of time you want to retrieve thrust force 
+        data (pd.DataFrame): Dataframe with MFR + thrust force info
+
+    Returns:
+        thrust (float): Thrust force [m s^-2] 
+    """
+    thrust = data['Thrust (N)'].loc[data.index[timeIndex]]   
+    return thrust
 
 def getGravity(m_rocket, altitude, launchAngle) -> float: 
     #m_rocket (kg): current mass of the rocket
@@ -90,25 +106,6 @@ def getDensity(altitude : float) -> float:
 
     density = baseDens * ((baseTemp - lapseRate * altitude) / baseTemp) ** (const - 1) # Air density at the current height above sea level [kg m^-3]
     return density 
-
-# def getTemp(altitude : float) -> float: 
-#     """
-#     Function to get temperature at current height above sea level, using ISA 
-
-#     Args:
-#         altitude (float): Current altitude (height above sea level) of the rocket [m]
-
-#     Returns:
-#         temp (float): Temperature at the current height above sea level [K]
-#     """
-
-#     baseTemp = 288.15 # Base temperature of troposphere [K]
-#     lapseRate = 0.0065 # Lapse rate [K m^-1]
-#     altitude = launchAltitude + displacement # Current rocket height above sea level 
-
-#     temp = baseTemp - lapseRate * altitude # Temperature in [K]
-
-#     return temp
 
 def getAcceleration(drag : float, gravity : float, thrust : float,  mass : float) -> float:
     """
@@ -164,6 +161,8 @@ def main() -> None:
 
     ourRocket = Rocket()
     launchParameters = Parameters('', 100, 2)
+
+    MFRThrustData = pd.read_csv("RecoverySim24-25/Thrust_MFR.csv")
     
     velocity = [launchParameters.initialVelocity]
     displacement = [launchParameters.initialDisplacement]
@@ -176,7 +175,7 @@ def main() -> None:
     dt = launchParameters.timestep
     # massFlowRate = [] #needs to be changed when the massFlowRate is a list. This should be the first index of the mfr list
     
-    i = 0 #Full timestep count. goes up by 2 every time because our thrustCurve goes up by half timesteps
+    i = 0
     while True:
         altitude = displacement[i] + launchParameters.launchAltitude 
 
@@ -189,10 +188,10 @@ def main() -> None:
         # Now calculating acceleration for timestep i + 1
        
         densityFullTimeStep = getDensity(altitudeFullTimeStep) # Density at timestep i + 1
-        ourRocket.updateMass(massFlowRate[i + 1], dt) # Updating mass at timestep i + 1. # TODO: Finish mass flow rate indexing 
+        ourRocket.updateMass(MFRThrustData, dt, i+1) # Updating mass at timestep i + 1. 
         altitudeFullTimeStep = displacementFullTimeStep + launchParameters.launchAltitude # Altitude at timestep i + 1
         # Calculating all forces at timestep i + 1
-        thrustFullTimeStep = getThrust() # TODO: FINISH! 
+        thrustFullTimeStep = getThrust(i+1, MFRThrustData)
         gravityFullTimeStep = getGravity(ourRocket.currentMass, altitudeFullTimeStep, launchParameters.launchAngle)  # Gravity at timestep i + 1, using altitude and mass at timestep i + 1
         dragFullTimeStep = getDrag(velocityHalfTimeStep, densityFullTimeStep, data[], ourRocket.topCrossSectionalArea) # TODO: COMPLETE DATA FOR DRAG COEFFICIENT Drag at timestep i + 1
         accelerationFullTimeStep = getAcceleration(dragFullTimeStep, gravityFullTimeStep, thrustFullTimeStep, ourRocket.currentMass) 
