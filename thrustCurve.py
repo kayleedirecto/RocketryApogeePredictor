@@ -4,13 +4,15 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 def extractThrustcurve(filepath : str) -> pd.DataFrame:
+    
     # Read the CSV, skipping the first 4 rows (adjust if necessary)
     df = pd.read_csv(filepath, skiprows=4, header=0)
+    
     # Display the array (optional)
-    print(df)
+    # print(df)
     return df
 
-def interpolateCurve(df : pd.DataFrame) -> pd.DataFrame:
+def interpolateCurve(df : pd.DataFrame, timestep : float = 1e-4) -> pd.DataFrame:
     # Ensure Time (s) is numeric for interpolation
     
     timeVals = df['Time (s)'].to_numpy()       # Convert time column to numpy array
@@ -22,7 +24,8 @@ def interpolateCurve(df : pd.DataFrame) -> pd.DataFrame:
     
     interp_func = interp1d(df['Time (s)'], df['Thrust (N)'], kind='linear', fill_value='extrapolate')
     
-    newTime = np.arange(timeVals.min(), timeVals.max(), 0.0001)
+    # Rearrange arrays with necessary timestep
+    newTime = np.arange(timeVals.min(), timeVals.max(), timestep)
     newThrust = interp_func(newTime)
 
     # Create the new DataFrame
@@ -61,6 +64,8 @@ def main() -> None:
     Isp = 185 # [s], Specific impulse for Cesaroni
     motorFile = "RecoverySim24-25/Cesaroni_10367N1800-P.csv"
     df = extractThrustcurve(motorFile)
+    
+    ### TEST CSV TO CHECK INTERMEDIARY RESULTS ###
     # updateCSV(df, "Test.csv")
 
     interpolatedDataFrame = interpolateCurve(df) 
