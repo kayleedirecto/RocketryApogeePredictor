@@ -24,10 +24,11 @@ class Rocket():
         """
         massFlowRate = data['Mass Flow Rate (kg/s)'].loc[data.index[timeIndex]]   
 
-        if massFlowRate < 1e-4:
-            self.currentMass = self.dryMass # NOTE: might not need this 
+        if (self.fuelmass - massFlowRate * dt) < 0: 
+            self.currentMass = self.dryMass
         else:
-            self.currentMass = self.currentMass - massFlowRate * dt
+            self.fuelMass -= massFlowRate * dt 
+            self.currentMass = self.fuelMass + self.dryMass
         
 class Parameters():
     def __init__(self, filePath : str, launchAltitude : int = 0, launchAngle : int = 0) -> None:
@@ -39,7 +40,7 @@ class Parameters():
         
         self.launchAltitude = launchAltitude # Height above sea level 
         
-        self.launchAngle = launchAngle      # Angle rocket is beign launched at (degrees) 
+        self.launchAngle = launchAngle      # Angle rocket is beign launched at (radians)
         
         # Integration Initial Conditions
         self.initialVelocity = 10e-6
@@ -60,18 +61,23 @@ def getThrust(timeIndex : int, data : pd.DataFrame) -> float:
     thrust = data['Thrust (N)'].loc[data.index[timeIndex]]   
     return thrust
 
-def getGravity(m_rocket, altitude, launchAngle) -> float: 
-    #m_rocket (kg): current mass of the rocket
-    #altitude (km): current height of the rocket above sea level
-    #launchAngle (radians): launch angle of the rocket
+def getGravity(rocketMass : float, launchAngle : float) -> float: 
+    """
+    Function to get force of gravity [m s^-2] 
 
-    # CONSTANTS 
-    g_universal = 9.8 #gravitational constant
+    Args:
+        rocketMass (float): Current mass of rocket
+        launchAngle (float): Launch angle of rocket [rad]
+
+    Returns:
+        gravityForce (float): Gravity force [m s^-2] 
+    """
+    gUniversal = 9.8 # Standard gravity 
 
     #force of gravity (in newtons)
-    fg = m_rocket * g * math.cos(launchAngle)
+    gravityForce = rocketMass * gUniversal * math.cos(launchAngle)
     
-    return fg
+    return gravityForce
 
 def getDrag(velocity : float, density : float, data : pd.DataFrame = Parameters.data, crossArea : float = Rocket.topCrossSectionalArea) -> float: 
     """
@@ -85,7 +91,7 @@ def getDrag(velocity : float, density : float, data : pd.DataFrame = Parameters.
     Returns:
         drag (float): Drag force [N]
     """
-    drag = 0.5 * data[] * density * crossArea * velocity * velocity
+    drag = 0.5 * data[] * density * crossArea * velocity * velocity # TODO Finish !!! 
     
     return drag 
 
@@ -160,9 +166,7 @@ def main() -> None:
     # Initializing rocket and launch parameters 
 
     ourRocket = Rocket()
-    launchParameters = Parameters('', 100, 2)
-
-    MFRThrustData = pd.read_csv("RecoverySim24-25/Thrust_MFR.csv")
+    launchParameters = Parameters('RecoverySim24-25/Thrust_MFR.csv', 100, 2)
     
     velocity = [launchParameters.initialVelocity]
     displacement = [launchParameters.initialDisplacement]
@@ -173,12 +177,10 @@ def main() -> None:
     drag = [0]
     density = [0]
     dt = launchParameters.timestep
-    # massFlowRate = [] #needs to be changed when the massFlowRate is a list. This should be the first index of the mfr list
     
     i = 0
     while True:
         altitude = displacement[i] + launchParameters.launchAltitude 
-
 
         # Updating velocity and displacement 
         
@@ -188,12 +190,12 @@ def main() -> None:
         # Now calculating acceleration for timestep i + 1
        
         densityFullTimeStep = getDensity(altitudeFullTimeStep) # Density at timestep i + 1
-        ourRocket.updateMass(MFRThrustData, dt, i+1) # Updating mass at timestep i + 1. 
+        ourRocket.updateMass(launchParameters.data, dt, i+1) # Updating mass at timestep i + 1. 
         altitudeFullTimeStep = displacementFullTimeStep + launchParameters.launchAltitude # Altitude at timestep i + 1
         # Calculating all forces at timestep i + 1
-        thrustFullTimeStep = getThrust(i+1, MFRThrustData)
+        thrustFullTimeStep = getThrust(i+1, launchParameters.data)
         gravityFullTimeStep = getGravity(ourRocket.currentMass, altitudeFullTimeStep, launchParameters.launchAngle)  # Gravity at timestep i + 1, using altitude and mass at timestep i + 1
-        dragFullTimeStep = getDrag(velocityHalfTimeStep, densityFullTimeStep, data[], ourRocket.topCrossSectionalArea) # TODO: COMPLETE DATA FOR DRAG COEFFICIENT Drag at timestep i + 1
+        dragFullTimeStep = getDrag(velocityHalfTimeStep, densityFullTimeStep, launchParameters.data, ourRocket.topCrossSectionalArea) # TODO: COMPLETE DATA FOR DRAG COEFFICIENT Drag at timestep i + 1
         accelerationFullTimeStep = getAcceleration(dragFullTimeStep, gravityFullTimeStep, thrustFullTimeStep, ourRocket.currentMass) 
        
         # Now catching up velocity to full timstep 
