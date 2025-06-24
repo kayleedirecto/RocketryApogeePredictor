@@ -162,7 +162,7 @@ def main() -> None:
     # Initializing rocket and launch parameters 
     print("Initializing parameters")
     ourRocket = Rocket(4.835, 17.625, 0.132, 0.501994898) # Using data from LC 2024
-    launchParameters = Parameters('./Cesaroni_8187M1545-P_ThrustMFR.csv', 295, 0.0523599)
+    launchParameters = Parameters('LC2024Files/Cesaroni_8187M1545-P_ThrustMFR.csv', 295, 0.0523599)
     
     # Initializing system of ODEs to be solved by integrator 
     S0 = (launchParameters.initialDisplacement, launchParameters.initialVelocity)
