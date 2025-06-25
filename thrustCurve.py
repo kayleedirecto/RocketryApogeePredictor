@@ -3,7 +3,8 @@ NOTE Things you need to change if you want to get the thrust curve for different
 1. motorFile - the csv file containing the thrust curve data points 
 2. Isp - the specific impulse 
 3. fuelMass - fuel mass of motor, used to check interpolation of mass flow rate is accurate 
-4. In extractThrustcurve, adjust number of rows to skip from the motor file csv  
+4. skipRows - number of rows to skip in the thrust curve file 
+5. savedFileName - file name to save to 
 '''
 
 import numpy as np
@@ -12,18 +13,19 @@ from scipy.interpolate import interp1d
 from scipy import integrate
 import matplotlib.pyplot as plt
 
-def extractThrustcurve(filepath : str) -> pd.DataFrame:
+def extractThrustCurve(filepath : str, skipRows : int) -> pd.DataFrame:
     """
     Reads the motor file CSV to extract the thrust curve data 
 
     Args:
         filepath (str): File path to the motor file CSV 
+        skipRows (int): Number of text rows to skip in the file 
 
     Returns:
         df (pd.dataframe): Data frame containing thrust curve info 
     """
 
-    df = pd.read_csv(filepath, skiprows=4, header=0) # NOTE: Adjust number of rows to skip if necessary 
+    df = pd.read_csv(filepath, skiprows=skipRows, header=0)
 
     return df
 
@@ -89,10 +91,15 @@ def calculateMassFlowRate(df : pd.DataFrame, Isp : float) -> pd.DataFrame:
     return df
     
 def main() -> None:
+
+    # Variables to change for each new motor! 
+    motorFile = "Cesaroni_8187M1545-P.csv" # Path desired to motor file 
     Isp = 172.65 # [s], Specific impulse of motor 
     fuelMass = 4.835 # [kg] Fuel mass in kg , used to check MFR calculated properly 
-    motorFile = "Cesaroni_8187M1545-P.csv" # Path desired to motor file 
-    df = extractThrustcurve(motorFile)
+    skipRows = 4 # Number of text rows to skip in thrust curve file 
+    savedFileName = motorFile[:-4] + "_ThrustMFR.csv" # File name to save to 
+
+    df = extractThrustCurve(motorFile, skipRows)
     
     interpolatedDataFrame = interpolateCurve(df) 
     interpolatedDataFrame = calculateMassFlowRate(interpolatedDataFrame, Isp) # Calculating mass flow rate
@@ -108,6 +115,6 @@ def main() -> None:
         print("Potential problem with integration. Integrated mass flow rate not within 2% of actual fuel mass. Not saving file. Check fuel mass, thrust curve, or integration.")
     else: 
         print("Saving file...")
-        updateCSV(interpolatedDataFrame, motorFile[:-4] + "_ThrustMFR.csv") # Saving thrust / MFR file to corresponding motor file name 
+        updateCSV(interpolatedDataFrame, savedFileName) # Saving thrust / MFR file to corresponding motor file name 
     
 main()
