@@ -21,9 +21,9 @@ As a suggestion, it may be useful to create a file for each rocket motor, contai
 
 ### 1. Create the data file containing the thrust + mass flow rate information 
 
-The main simulation requires data on the rocket's thrust and mass flow rate. The script ˆthrustCurve.pyˆ creates the necessary dataframe containing this information. 
+The main simulation requires data on the rocket's thrust and mass flow rate. The script *thrustCurve.py* creates the necessary dataframe containing this information. 
 
-To get started, download your rocket motor's thrust curve as a CSV file. This can usually be found on thrustcurve.org. These CSV files usual only contain a few thrust data points. To run an accurate simulation, we must interpolate more data points. This is 
+To get started, download your rocket motor's thrust curve as a CSV file. This can usually be found on <thrustcurve.org>. These CSV files usual only contain a few thrust data points. To run an accurate simulation, we must interpolate more data points. This is 
 
 
 ### 2. Running the main simulation 
