@@ -91,7 +91,7 @@ def calculateMassFlowRate(df : pd.DataFrame, Isp : float) -> pd.DataFrame:
 def main() -> None:
     Isp = 172.65 # [s], Specific impulse of motor 
     fuelMass = 4.835 # [kg] Fuel mass in kg , used to check MFR calculated properly 
-    motorFile = "Cesaroni_8187M1545-P.csv"
+    motorFile = "Cesaroni_8187M1545-P.csv" # Path desired to motor file 
     df = extractThrustcurve(motorFile)
     
     interpolatedDataFrame = interpolateCurve(df) 
