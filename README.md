@@ -23,7 +23,7 @@ The algorithm works in 2 main phases:
 
 The rocket's position and velocity are computed by solving a system of ordinary differential equations using *scipy.integrate.solve_ivp*: 
 
-$\frac{dx}{dt} = dv$ , $\frac{dv}{dt} = \frac{T(t) - D(v, \rho) - G(m)}{m}$
+$\frac{dx}{dt} = dv$ &emsp , &emsp $\frac{dv}{dt} = \frac{T(t) - D(v, \rho) - G(m)}{m}$
 
 where, 
 $\tab$ 
