@@ -36,7 +36,7 @@ class Rocket():
             massFlowRate = np.interp(time, data['Time (s)'], data['Mass Flow Rate (kg/s)'])
             newFuelMass = self.fuelMass - massFlowRate * dt
             if newFuelMass < 0:
-                print("Warning: Fuel mass below zero! Possible error in mass flow rate. Fuel mass = ", newFuelMass)
+                print("Warning: Fuel mass below zero! Possible error in mass flow rate. Fuel mass = ", newFuelMass, ". Assuming fuel mass = 0.")
                 self.currentMass = self.dryMass # Will just assume fuel mass is depleted 
             else:
                 self.fuelMass = newFuelMass

@@ -1,6 +1,6 @@
 # Rocket Apogee Predictor 
 
-This repository predicts the apogee of a model rocket! 
+This repository predicts the apogee of a model rocket created for the McMaster Rocketry team. 
 
 ## Repository Structure 
 
@@ -15,13 +15,31 @@ RecoverySim24-25
 ## Math Overview 
 
 
+## Algorithm 
+
+The algorithm works in 2 main phases: 
+
+### 1. Numerical integration using an ODE solver
+
+The rocket's position and velocity are computed by solving a system of ordinary differential equations using *scipy.integrate.solve_ivp*: 
+
+$\frac{dx}{dt} = dv$ , $\frac{dv}{dt} = \frac{T(t) - D(v, \rho) - G(m)}{m}$
+
+where, 
+$\tab$ 
+
+
+
+
 ## Usage 
 
-As a suggestion, it may be useful to create a folder for each rocket motor, containing the thrust curve file and any other useful info. 
+As a suggestion, it may be useful to create a folder for each rocket motor simulation, containing the thrust curve file and any other useful info. 
 
 ### 1. Create the data file containing the thrust + mass flow rate information (MFR) using the *thrustCurve.py* file
 
-The main simulation requires data on the rocket's thrust and MFR. The script *thrustCurve.py* creates the necessary dataframe containing this information by interpolating thrust curve data and calculating the MFR. 
+The main apogee simulation requires data on the rocket's thrust and MFR. The script *thrustCurve.py* creates the necessary dataframe containing this information by interpolating thrust curve data and calculating the MFR. 
+
+All variables that need to be changed for each motor can be found in the main function. 
 
 1. To get started, download your rocket motor's thrust curve as a CSV file. This can usually be found on [thrustcurve.org](https://www.thrustcurve.org/). Save the path to this file in the *motorFile* variable. 
 
@@ -38,6 +56,24 @@ The main simulation requires data on the rocket's thrust and MFR. The script *th
 The *thrustCurve.py* script will interpolate the downloaded thrust curve CSV to generate more thrust data points at smaller time intervals. It will then calculate the MFR at those same time intervals. The integral of the MFR should be within 2% relative error of the fuel mass, otherwise the file will not save, and investigation will be needed. 
 
 ### 2. Running the main simulation 
+
+Now you can run the main simulation using *ApogeePredictor.py*! The only things that need to be changed are the rocket and launch parameters class initializations for each rocket launch you would like to simulate, found in the main function of *ApogeePredictor.py*. 
+
+1. Change the rocket class initialization to your rocket's parameters. 
+
+2. Change the launch parameters class initialization to your launch parameters. 
+
+3. Run the simulation. 
+
+The script will output multiple plots: 1) the position, velocity, and acceleration of the rocket over time, 2) the rocket mass over time, and 3) the drag, thrust, and gravity of the rocket over time. The script will also output the apogee prediction, maximum velocity, and maximum acceleration of the rocket flight. 
+
+
+
+
+
+
+
+
 
 
 
