@@ -35,6 +35,12 @@ G = gravity (depends on launch angle and mass)
 
 m = mass (changing due to fuel consumption) 
 
+### 2. Post Processing (Physics Calculated Manually) 
+
+After solving for position and velocity, other flight parameters are calculated using these solution values: 
+
+
+
 ## Usage 
 
 As a suggestion, it may be useful to create a folder for each rocket motor simulation, containing the thrust curve file and any other useful info. 
