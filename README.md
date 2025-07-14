@@ -27,9 +27,13 @@ $\frac{dx}{dt} = dv$ , $\frac{dv}{dt} = \frac{T(t) - D(v, \rho) - G(m)}{m}$
 
 where, 
 
+T(t) = thrust force from motor data
 
+D = drag force (depends on velocity and air density) 
 
+G = gravity (depends on launch angle and mass) 
 
+m = mass (changing due to fuel consumption) 
 
 ## Usage 
 
