@@ -16,7 +16,7 @@ RecoverySim24-25
 
 The main forces considered in this simulation are (1) thrust, (2) drag, and (3) gravity. A basic free body diagram can be seen below. 
 
-<img width="899" height="661" alt="FBD" src="https://github.com/user-attachments/assets/d1d72329-fff2-41d9-a519-c1e7b6a1d6a2" />
+<img width="400" height="400" alt="FBD" src="https://github.com/user-attachments/assets/d1d72329-fff2-41d9-a519-c1e7b6a1d6a2" />
 
 
 
