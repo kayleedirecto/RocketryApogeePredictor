@@ -12,7 +12,7 @@ RecoverySim24-25
 └── thrustCurve.py              # Supplementary script to obtain thrust curve + mass flow rate info  
 ```
 
-## Math Overview 
+## Math Overview **NEED TO FINISH
 
 The main forces considered in this simulation are (1) thrust, (2) drag, and (3) gravity. A basic free body diagram can be seen below. 
 
@@ -20,7 +20,7 @@ The main forces considered in this simulation are (1) thrust, (2) drag, and (3) 
 
 
 
-## Algorithm 
+## Algorithm **NEED TO FINISH
 
 The algorithm works in 2 main phases: 
 
