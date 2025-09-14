@@ -12,15 +12,128 @@ RecoverySim24-25
 └── thrustCurve.py              # Supplementary script to obtain thrust curve + mass flow rate info  
 ```
 
-## Math Overview **NEED TO FINISH
+## Math Overview 
 
-The main forces considered in this simulation are (1) thrust, (2) drag, and (3) gravity. A basic free body diagram can be seen below. 
+This simulation uses a simplified 1D model, considering only the forces in the $z$ (upwards) direction to calculate apogee. We neglect wind, and all other forces acting in the $x$ direction. 
 
-<img width="400" height="400" alt="FBD" src="https://github.com/user-attachments/assets/d1d72329-fff2-41d9-a519-c1e7b6a1d6a2" />
+The main forces considered in this simulation are (1) thrust, (2) drag, and (3) gravity. During the simulation, we rotate the frame of reference, so that the thrust and drag act strictly in the positive $z$ direction, and a portion of the gravitational force acts in the negative $z$ direction (Gravity_1 in the image below).  This simplifies the computations for apogee prediction. A visual is shown below. 
+
+<img width="225" height="270" alt="Picture1" src="https://github.com/user-attachments/assets/07be708c-449e-4250-a444-507c6549263e" />
+
+<img width="220" height="270" alt="pic2" src="https://github.com/user-attachments/assets/24369458-c6c5-4229-aaf0-357da800c9b9" />
+
+### Thust Calculation 
+
+The manufacturer of the motor will provide a thrust curve of the rocket, outlinging the thrust force applied by the motor to the rocket over time. Using this, we can extrapolate the thrust force at any time, $t$, in our simulation. No math needed. 
+
+### Drag Calculation 
+
+#### Overall Equation 
+
+The force of drag, $F_d$, on the rocket can be described by 
+
+$\quad$ ${F_d = \frac{1}{2} \rho(z) v^2 C_d A}$
+
+where, 
+
+$\quad$ $\rho(z)$ = density of the air [kg m $^{-3}$], as a function of altitude, $z$ [m]
+
+$\quad$ $v$ = velocity of the rocket relative to the air around it [m s $^{-1}$]
+
+$\quad$ $C_d$ = determined coefficient of drag 
+
+$\quad$ $A$ = cross section of rocket, perpendicular to the air flow [m $^2$]
+
+Since we are considering a 1D model, the cross section is taken to be the circular cross section of the rocket, perpendicular to the incoming wind. The relative velocity is taken to be the velocity of the rocket in the $z$ direction, since we are neglecting wind in the horizontal direction. 
+
+Ongoing research is being done on calculations of the drag coefficient. Current research on commonly used values varies within a amrgin of around 0.1. For now, we use an average of values obtained using the $OpenRocket$ simulation. 
+
+#### Barometric Formula for Air Density 
+
+Air density, $\rho$ is a function of the altitude, $z$. therefore, this must also be calculated as the simulation progresses. We can calculate the density as a function of altitude using the barometric formula under the International Standard Atmosphere (ISA) model, 
+
+$\quad$ $\rho(z) = \rho_b [\frac{T_b - (z - z_b)L_b}{T_b}]^{(\frac{g_0 M}{R L_b} - 1)}$ 
+
+where, 
+
+$\quad$ $\rho(z)$ = density of the air [kg m $^{-3}$], as a function of altitude, $z$ [m]
+
+$\quad$ $\rho_b$ = Base density, 1.2250 kg m $^{-3}$ at the troposphere 
+
+$\quad$ $T_b$ = Base temperature [K], 2.8815 K at troposphere 
+
+$\quad$ $z$ = Height above sea level [m]
+
+$\quad$ $z_b$ = Base height above sea level [m], 0 m at troposphere 
+
+$\quad$ $L_b$ = Lapse rate at base level [K m $^{-1}$], 0.0065 K m $^{-1}$ at troposphere 
+
+$\quad$ $g_0$ = Standard gravitational acceleration, 9.80665 m s $^{-2}$
+
+$\quad$ $M$ = Molar mass of Earth's air, 0.0289644 kg mol $^{-1}$
+
+$\quad$ $R$ = Universal gas constant, 8.3144598 N m mol $^{-1}$ K $^{-1}$
+
+Note that the ISA model breaks up the earth's atmosphere into layers. Each layer is assigned its own base temperature, base altitude above sea level, base density, and lapse rate. Since model rocketry occurs between 0 and 11 km above mean sea level, we are in the troposphere. This gives us the base values as mentioned above.
+
+### Gravity 
+
+#### Overall Equation 
+
+As mentioned previously, we use the component of gravity opposite to the rocket's direction of flight, i.e. $Gravity_1$ in the image below. The angle, $\theta$ refers to the launch angle, which will be provided by the competition judges on launch day. 
+
+<img width="220" height="250" alt="pic2" src="https://github.com/user-attachments/assets/810be4de-3ae4-4092-8d6f-2d715efe30a5" />
+
+Therefore, the equation for gravity is
+
+$\quad$ $F_g = \frac{m_{rocket} g_0}{cos\theta}$
+
+where, 
+
+$\quad$ $g_0$ = Standard gravitational acceleration, 9.80665 m s $^{-2}$
+
+$\quad$ $m_{rocket}$ = Mass of rocket, calculated throughout flight [kg]
+
+$\quad$ $\theta$ = Launch angle [rad]
+
+#### Mass Calculation 
+
+As the rocket will continously use fuel throughout the flight, the mass of the rocket will continuously change, and will need to be calculated at each timestep of the simulation. 
+
+Using the rocket motor's thrust curve, we can calculate the mass-flow rate. The mass-flow rate is the speed at which the motor's fuel is ejected from the rocket. This value allows us to determine the changing mass of the rocket during flight. 
+
+To find the mass-flow rate at an instance in time, we use the thrust given from the thrust curve, along with the specific impulse, $I_{sp}$. The $I_{sp}$ is given by the manufacturer of the motor. 
+
+The mass flow rate is given by 
+
+$\quad$ $\dot{m(t)} = \frac{F_{thrust}(t)}{I_{sp}g_0}$
+
+where, 
+
+$\quad$ $g_0$ = Standard gravitational acceleration, 9.80665 m s $^{-2}$
+
+$\quad$ $I_{sp}$ = Specific impulse, given by the manufacturer [Ns]
+
+$\quad$ $F_{thrust}$ = Thrust force [N], as a function of time, $t$, taken from the thrust curve 
+
+The current mass of the rocket at each timestep can be calculated by, 
+
+$\quad$ $m(t)$ = $DryMass$ + ($WetMass(t-1)$ - $\dot{m(t)} * dt $)
+
+where, 
+
+$\quad$ $m(t)$ = Current mass at time $t$
+
+$\quad$ $DryMass$ = Mass of the rocket, excluding the fuel 
+
+$\quad$ $WetMass(t-1)$ = Mass of the fuel at the previous timestep 
+
+$\quad$ $\dot{m(t)}$ = Mass flow rate at time $t$
+
+$\quad$ $dt$ = Timestep 
 
 
-
-## Algorithm **NEED TO FINISH
+## Algorithm 
 
 The algorithm works in 2 main phases: 
 
@@ -28,23 +141,21 @@ The algorithm works in 2 main phases:
 
 The rocket's position and velocity are computed by solving a system of ordinary differential equations using *scipy.integrate.solve_ivp*: 
 
-$\frac{dx}{dt} = dv$ , $\frac{dv}{dt} = \frac{T(t) - D(v, \rho) - G(m)}{m}$
+$\frac{dx}{dt} = v$ , $\frac{dv}{dt} = \frac{F_{thrust}(t) - F_{drag}(t) - F_{gravity}(t)}{m(t)}$
 
 where, 
 
-T(t) = thrust force from motor data
+$\quad$ $F_{thrust}(t)$ = Thrust force at time $t$  thrust curve data
 
-D = drag force (depends on velocity and air density) 
+$\quad$ $F_{drag}(t)$ = Drag force, calculated at each time $t$ 
 
-G = gravity (depends on launch angle and mass) 
+$\quad$ $F_{gravity}(t)$ = Gravity, calculated at each time $t$
 
-m = mass (changing due to fuel consumption) 
+$\quad$ $m(t)$ = Mass, calculated at each time $t$
 
 ### 2. Post Processing (Physics Calculated Manually) 
 
-After solving for position and velocity, other flight parameters are calculated using these solution values: 
-
-
+After solving for position and velocity at each timestep using the integrator, these solution values are used to manually calculate the other flight parameters, such as the acceleration. 
 
 ## Usage 
 
