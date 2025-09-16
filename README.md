@@ -44,9 +44,9 @@ $\quad$ $C_d$ = determined coefficient of drag
 
 $\quad$ $A$ = cross section of rocket, perpendicular to the air flow [m $^2$]
 
-Since we are considering a 1D model, the cross section is taken to be the circular cross section of the rocket, perpendicular to the incoming wind. The relative velocity is taken to be the velocity of the rocket in the $z$ direction, since we are neglecting wind in the horizontal direction. 
+Since we are considering a 1D model, the cross section is taken to be the circular cross section of the rocket. The relative velocity is simply taken to be the velocity of the rocket in the $z$ direction, since we are neglecting wind in the horizontal direction. 
 
-Ongoing research is being done on calculations of the drag coefficient. Current research on commonly used values varies within a amrgin of around 0.1. For now, we use an average of values obtained using the $OpenRocket$ simulation. 
+Ongoing research is being done on calculations of the drag coefficient. Commonly used values vary by up to 0.1. For now, we use an average of values obtained using the $OpenRocket$ simulation. 
 
 #### Barometric Formula for Air Density 
 
@@ -80,7 +80,7 @@ Note that the ISA model breaks up the earth's atmosphere into layers. Each layer
 
 #### Overall Equation 
 
-As mentioned previously, we use the component of gravity opposite to the rocket's direction of flight, i.e. $Gravity_1$ in the image below. The angle, $\theta$ refers to the launch angle, which will be provided by the competition judges on launch day. 
+As mentioned previously, we use the component of gravity opposite to the rocket's direction of flight, i.e. Gravity_1 in the image below. The angle, $\theta$ refers to the launch angle, which will be provided by the competition judges on launch day. 
 
 <img width="220" height="250" alt="pic2" src="https://github.com/user-attachments/assets/810be4de-3ae4-4092-8d6f-2d715efe30a5" />
 
@@ -100,7 +100,7 @@ $\quad$ $\theta$ = Launch angle [rad]
 
 As the rocket will continously use fuel throughout the flight, the mass of the rocket will continuously change, and will need to be calculated at each timestep of the simulation. 
 
-Using the rocket motor's thrust curve, we can calculate the mass-flow rate. The mass-flow rate is the speed at which the motor's fuel is ejected from the rocket. This value allows us to determine the changing mass of the rocket during flight. 
+Using the rocket motor's thrust curve, we can calculate the mass-flow rate. The mass-flow rate is the mass that flows out of the rocket per unit time. This value allows us to determine the changing mass of the rocket during flight. 
 
 To find the mass-flow rate at an instance in time, we use the thrust given from the thrust curve, along with the specific impulse, $I_{sp}$. The $I_{sp}$ is given by the manufacturer of the motor. 
 
@@ -145,7 +145,7 @@ $\frac{dx}{dt} = v$ , $\frac{dv}{dt} = \frac{F_{thrust}(t) - F_{drag}(t) - F_{gr
 
 where, 
 
-$\quad$ $F_{thrust}(t)$ = Thrust force at time $t$  thrust curve data
+$\quad$ $F_{thrust}(t)$ = Thrust force at time $t$, obtained from thrust curve data
 
 $\quad$ $F_{drag}(t)$ = Drag force, calculated at each time $t$ 
 
@@ -204,7 +204,7 @@ Currently an average value obtained using the $OpenRocket$ simulation is hardcod
 
 #### 2. Implementing a graphical user interface (GUI) 
 
-Currently, the variables to create the necessary data frame and the variables describing the rocket and launch parameters must be manually changed in each file for each simulation run. Moving forward, it would be ideal to implement a GUI for easier user access, where users can simply input all rocket and launch parameters, run the simulation, then view the resulting plots. 
+Currently, the variables to create the necessary data frame and the variables describing the rocket and launch parameters must be manually changed in each file for each simulation run. Moving forward, it would be ideal to implement a GUI for easier usage, where users can simply input all rocket and launch parameters, run the simulation, then view the resulting plots. 
 
 #### 3. Creating a full trajectory path simulation 
 
