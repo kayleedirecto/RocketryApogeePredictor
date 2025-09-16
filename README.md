@@ -16,15 +16,15 @@ RecoverySim24-25
 
 This simulation uses a simplified 1D model, considering only the forces in the $z$ (upwards) direction to calculate apogee. We neglect wind, and all other forces acting in the $x$ direction. 
 
-The main forces considered in this simulation are (1) thrust, (2) drag, and (3) gravity. During the simulation, we rotate the frame of reference, so that the thrust and drag act strictly in the positive $z$ direction, and a portion of the gravitational force acts in the negative $z$ direction (Gravity_1 in the image below).  This simplifies the computations for apogee prediction. A visual is shown below. 
+The main forces considered in this simulation are (1) thrust, (2) drag, and (3) gravity. During the simulation, we use the frame of reference such that the thrust and drag act strictly in the $z$ direction, and we only consider the portion of gravity acting in the negative $z$ direction (Gravity_1 in the image below).  This simplifies the computations for apogee prediction. A visual is shown below. 
 
-<img width="225" height="270" alt="Picture1" src="https://github.com/user-attachments/assets/07be708c-449e-4250-a444-507c6549263e" />
+<img width="200" height="270" alt="Picture1" src="https://github.com/user-attachments/assets/07be708c-449e-4250-a444-507c6549263e" />
 
-<img width="220" height="270" alt="pic2" src="https://github.com/user-attachments/assets/24369458-c6c5-4229-aaf0-357da800c9b9" />
+<img width="200" height="270" alt="pic2" src="https://github.com/user-attachments/assets/24369458-c6c5-4229-aaf0-357da800c9b9" />
 
-### Thust Calculation 
+### Thrust Calculation 
 
-The manufacturer of the motor will provide a thrust curve of the rocket, outlinging the thrust force applied by the motor to the rocket over time. Using this, we can extrapolate the thrust force at any time, $t$, in our simulation. No math needed. 
+The manufacturer of the motor will provide a thrust curve of the rocket, outlining the thrust force applied by the motor to the rocket over time. Using this, we can extrapolate the thrust force at any time, $t$, for our simulation. No math needed. 
 
 ### Drag Calculation 
 
