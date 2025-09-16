@@ -16,7 +16,7 @@ RecoverySim24-25
 
 This simulation uses a simplified 1D model, considering only the forces in the $z$ (upwards) direction to calculate apogee. We neglect wind, and all other forces acting in the $x$ direction. 
 
-The main forces considered in this simulation are (1) thrust, (2) drag, and (3) gravity. During the simulation, we use the frame of reference such that the thrust and drag act strictly in the $z$ direction, and we only consider the portion of gravity acting in the negative $z$ direction (Gravity_1 in the image below).  This simplifies the computations for apogee prediction. A visual is shown below. 
+The main forces considered in this simulation are (1) thrust, (2) drag, and (3) gravity. During the simulation, we use the frame of reference such that the thrust and drag act strictly in the $z$ direction, and we only consider the portion of gravity acting in the negative $z$ direction (Gravity_1 in the image below). This simplifies the computation. This technically gives us the diagonal displacement of the rocket, but using simple trigonometry we can then calculate the vertical displacement to determine apogee.  A visual is shown below. 
 
 <img width="200" height="270" alt="Picture1" src="https://github.com/user-attachments/assets/07be708c-449e-4250-a444-507c6549263e" />
 
