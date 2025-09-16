@@ -7,7 +7,7 @@ This repository predicts the apogee of a model rocket created for the McMaster R
 ```
 RecoverySim24-25
 ├── LC2024Files                 # All files pertaining to Launch Canada 2024 Rocket  
-├── ApogeePredictor.py          # The main simulation script! 
+├── ApogeePredictor.py          # The main simulation script
 ├── README.md                   # You're here! 
 └── thrustCurve.py              # Supplementary script to obtain thrust curve + mass flow rate info  
 ```
