@@ -194,10 +194,21 @@ Now you can run the main simulation using *ApogeePredictor.py*! The only things 
 The script will output multiple plots: 1) the position, velocity, and acceleration of the rocket over time, 2) the rocket mass over time, and 3) the drag, thrust, and gravity of the rocket over time. The script will also output the apogee prediction, maximum velocity, and maximum acceleration of the rocket flight. 
 
 
+## Future Work 
 
+Areas for future work include 
 
+### 1. Implementing a more accurate value for the drag coefficient, $C_d$
 
+Currently an average value obtained using the $OpenRocket$ simulation is hardcoded into the program. Research could be done into the mathematics behind $C_d$ and how this can be implemented into the simulation. Please note, this seems quite involved, and may be a separate project in and of itself. Some reading material: http://ftp.demec.ufpr.br/foguete/bibliografia/TR-11%20AERODYNAMIC%20DRAG%20OF%20MODEL%20ROCKET.pdf
 
+### 2. Implementing a graphical user interface (GUI) 
+
+Currently, the variables to create the necessary data frame and the variables describing the rocket and launch parameters must be manually changed in each file for each simulation run. Moving forward, it would be ideal to implement a GUI for easier user access, where users can simply input all rocket and launch parameters, run the simulation, then view the resulting plots. 
+
+### 3. Creating a full trajectory path simulation 
+
+This simulation currently only predicts apogee. Future work should be done in implementing a full trajectory prediction, accounting for drogue parachute and main parachute ejections. This full trajectory calculation would be in 2D, so wind resistance must be taken into account. Ideally, the goal of this simulation would be to have a prediction for the horizontal distance travelled, to know the general radius of where the rocket could have landed for easier recovery. 
 
 
 
