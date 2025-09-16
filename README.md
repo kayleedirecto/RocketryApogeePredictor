@@ -1,6 +1,6 @@
 # Rocket Apogee Predictor 
 
-This repository predicts the apogee of a model rocket created for the McMaster Rocketry team. 
+This was the simulation I created for the 2024-2025 McMaster Rocketry Team to predict the apogee of our rocket! 
 
 ## Repository Structure 
 
