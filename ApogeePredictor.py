@@ -198,7 +198,8 @@ def main() -> None:
         drag.append(dragVal)
         gravity.append(gravityVal)
 
-    # Getting everything not on an angle (technically negligible, but easy calculation)
+    # Technically just calculated the diagonal displacement of the rocket. 
+    # We can use some trigonometry to get strictly the vertical displacement (technically negligible, but easy calculation)
     displacement *= math.sin((math.pi / 2) - launchParameters.launchAngle)
     velocity *= math.sin((math.pi / 2) - launchParameters.launchAngle)
     acceleration = np.array(acceleration) * math.sin((math.pi / 2) - launchParameters.launchAngle)
